@@ -54,6 +54,34 @@ class NewVoter(generics.CreateAPIView):
 
 
 @api_view(["POST"])
+def login(request):
+    received_json_data = json.loads(request.body)
+    email_id = received_json_data["email_id"]
+    password = received_json_data["password"]
+    user_instance = None
+    try:
+        user_instance = Voter.objects.get(user_email=email_id)
+    except:
+        return Response(
+            {
+                "message": "Email not registered.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if user_instance.password != password:
+        return Response(
+            {
+                "message": "Invalid password.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    data = VoterSerialzer(user_instance).data
+    return Response(data)
+
+
+@api_view(["POST"])
 def newElection(request):
     received_json_data = json.loads(request.body)
     # index = Election.objects.all().count()
