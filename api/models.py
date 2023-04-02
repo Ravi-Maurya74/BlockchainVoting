@@ -6,6 +6,11 @@ from django.db import models
 class Election(models.Model):
     title = models.CharField(max_length=300)
     number_of_choices = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now=True)
+    running = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created']
 
     def __str__(self) -> str:
         return self.title

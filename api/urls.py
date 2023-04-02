@@ -9,4 +9,6 @@ urlpatterns = [
     path("getElectionResult/", views.getElectionResult),
     path("castVote/", views.castVote),
     path("verifyVote/", views.verifyVote),
+    path("getRunningPolls/", views.getRunningPolls),
+    path("getClosedPolls/", views.getClosedPolls),
 ]

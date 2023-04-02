@@ -8,6 +8,7 @@ class ElectionView(admin.ModelAdmin):
     readonly_fields = (
         "id",
         "choices",
+        "created",
     )
 
     def choices(self, instance):

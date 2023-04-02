@@ -114,6 +114,15 @@ def newElection(request):
 def getElectionResult(request):
     received_json_data = json.loads(request.body)
     election_id = received_json_data["election_id"]
+    election = Election.objects.get(pk=election_id)
+
+    if election.running:
+        return Response(
+            {
+                "message": "The poll is still running!",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     result = contract_functions.getElectionResult(election_id=election_id)
     print(result)
@@ -133,6 +142,15 @@ def castVote(request):
     received_json_data = json.loads(request.body)
     election_id = received_json_data["election_id"]
     choice_id = received_json_data["choice_id"]
+
+    election = Election.objects.get(pk=election_id)
+    if election.running == False:
+        return Response(
+            {
+                "message": "The poll is over!",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     hash = contract_functions.vote(election_id=election_id, choice_id=choice_id)
 
@@ -163,5 +181,41 @@ def verifyVote(request):
     return Response(
         {
             "choice": choice_data,
+        }
+    )
+
+
+@api_view(["GET"])
+def getRunningPolls(request):
+    elections = Election.objects.filter(running=True)
+    data = ElectionSerializer(elections, many=True).data
+    return Response(data)
+
+
+@api_view(["GET"])
+def getClosedPolls(request):
+    elections = Election.objects.filter(running=False)
+    data = ElectionSerializer(elections, many=True).data
+    return Response(data)
+
+
+@api_view(["POST"])
+def closePoll(request):
+    received_json_data = json.loads(request.body)
+    voter = Voter.objects.get(pk=received_json_data["voter_id"])
+    if voter.admin == False:
+        return Response(
+            {
+                "message": "You are not admin!",
+            },
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    election = Election.objects.get(pk=received_json_data["election_id"])
+    election.running = False
+    election.save()
+    return Response(
+        {
+            "message": "Poll has been closed.",
         }
     )
