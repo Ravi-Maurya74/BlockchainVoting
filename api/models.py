@@ -6,11 +6,12 @@ from django.db import models
 class Election(models.Model):
     title = models.CharField(max_length=300)
     number_of_choices = models.IntegerField(default=0)
-    created = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
     running = models.BooleanField(default=True)
+    number_of_votes = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['-created']
+        ordering = ["-created"]
 
     def __str__(self) -> str:
         return self.title

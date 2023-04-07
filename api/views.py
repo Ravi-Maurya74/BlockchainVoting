@@ -1,9 +1,15 @@
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import ast
 import json
 from .models import Election, Choice, Voter
-from .serializers import ElectionSerializer, VoterSerialzer, ChoiceSerialzer
+from .serializers import (
+    ElectionSerializer,
+    VoterSerialzer,
+    ChoiceSerialzer,
+    ElectionUserSerializer,
+)
 
 from . import contract_functions
 
@@ -82,6 +88,14 @@ def login(request):
 
 
 @api_view(["POST"])
+def identifyVoter(request):
+    received_json_data = json.loads(request.body)
+    voter = Voter.objects.get(pk=received_json_data["voter_id"])
+    data = VoterSerialzer(voter).data
+    return Response(data)
+
+
+@api_view(["POST"])
 def newElection(request):
     received_json_data = json.loads(request.body)
     # index = Election.objects.all().count()
@@ -124,15 +138,26 @@ def getElectionResult(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    result = contract_functions.getElectionResult(election_id=election_id)
-    print(result)
+    result = str(contract_functions.getElectionResult(election_id=election_id))
+    res = json.loads(result)
+    max = -1
+    winners = []
+    for idx, val in enumerate(res):
+        if val > max:
+            max = val
+            winners = []
+            winners.append(idx)
+        elif val == max:
+            winners.append(idx)
+
     election = Election.objects.get(pk=election_id)
     choices = election.choices
     choices_data = ChoiceSerialzer(choices, many=True).data
     return Response(
         {
             "choices": choices_data,
-            "votes": json.dumps(result, default=vars),
+            "votes": json.loads(result),
+            "winners": winners,
         }
     )
 
@@ -142,8 +167,10 @@ def castVote(request):
     received_json_data = json.loads(request.body)
     election_id = received_json_data["election_id"]
     choice_id = received_json_data["choice_id"]
+    voter_id = received_json_data["voter_id"]
 
     election = Election.objects.get(pk=election_id)
+    voter = Voter.objects.get(pk=voter_id)
     if election.running == False:
         return Response(
             {
@@ -153,6 +180,10 @@ def castVote(request):
         )
 
     hash = contract_functions.vote(election_id=election_id, choice_id=choice_id)
+    election.number_of_votes += 1
+    voter.voted_in.add(election)
+    election.save()
+    voter.save()
 
     return Response(
         {
@@ -219,3 +250,53 @@ def closePoll(request):
             "message": "Poll has been closed.",
         }
     )
+
+
+@api_view(["POST"])
+def searchElection(request):
+    received_json_data = json.loads(request.body)
+    elections = Election.objects.filter(title__icontains=received_json_data["title"])[
+        :5
+    ]
+    data = ElectionUserSerializer(
+        elections,
+        many=True,
+        context={"voter_id": received_json_data["voter_id"]},
+    ).data
+    return Response(data)
+
+
+@api_view(["POST"])
+def getElectionforVoter(request):
+    received_json_data = json.loads(request.body)
+    elections = Election.objects.all()
+    data = ElectionUserSerializer(
+        elections,
+        many=True,
+        context={"voter_id": received_json_data["voter_id"]},
+    ).data
+    return Response(data)
+
+
+@api_view(["POST"])
+def getClosedElectionforVoter(request):
+    received_json_data = json.loads(request.body)
+    elections = Election.objects.filter(running=False)
+    data = ElectionUserSerializer(
+        elections,
+        many=True,
+        context={"voter_id": received_json_data["voter_id"]},
+    ).data
+    return Response(data)
+
+
+@api_view(["POST"])
+def getOngoingElectionforVoter(request):
+    received_json_data = json.loads(request.body)
+    elections = Election.objects.filter(running=True)
+    data = ElectionUserSerializer(
+        elections,
+        many=True,
+        context={"voter_id": received_json_data["voter_id"]},
+    ).data
+    return Response(data)
