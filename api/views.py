@@ -59,7 +59,7 @@ class NewVoter(generics.CreateAPIView):
     serializer_class = VoterSerialzer
 
 
-@api_view(["POST"])
+@api_view(["POST", "OPTIONS"])  
 def login(request):
     received_json_data = json.loads(request.body)
     email_id = received_json_data["email_id"]
@@ -299,4 +299,47 @@ def getOngoingElectionforVoter(request):
         many=True,
         context={"voter_id": received_json_data["voter_id"]},
     ).data
+    return Response(data)
+
+
+@api_view(["POST"])
+def adminLogin(request):
+    received_json_data = json.loads(request.body)
+    email_id = received_json_data["email_id"]
+    password = received_json_data["password"]
+    user_instance = None
+    try:
+        user_instance = Voter.objects.get(user_email=email_id)
+    except:
+        return Response(
+            {
+                "message": "Email not registered.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if user_instance.password != password:
+        return Response(
+            {
+                "message": "Invalid password.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if user_instance.admin == False:
+        return Response(
+            {
+                "message": "You are not authorised.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    data = VoterSerialzer(user_instance).data
+    return Response(data)
+
+@api_view(["POST"])
+def getElection(request):
+    received_json_data = json.loads(request.body)
+    election = Election.objects.get(pk=received_json_data["election_id"])
+    data=ElectionSerializer(election).data
     return Response(data)

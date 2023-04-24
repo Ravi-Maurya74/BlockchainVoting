@@ -13,8 +13,13 @@ class ElectionView(admin.ModelAdmin):
 
     def choices(self, instance):
         return [choice.name for choice in instance.choices.all()]
+    
+class VoterView(admin.ModelAdmin):
+    readonly_fields=(
+        "id",   
+    )
 
 
 admin.site.register(Election, ElectionView)
 admin.site.register(Choice)
-admin.site.register(Voter)
+admin.site.register(Voter,VoterView)

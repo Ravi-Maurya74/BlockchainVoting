@@ -4,7 +4,6 @@ from hexbytes import HexBytes
 
 chain_id = 11155111
 my_address = "0xb7A2E79FD29106f03C17b6aD2E03e520ABEf6A20"
-private_key = "0xd1bdfc5831558a8c212cba587a1749f0bf22871933bacd3eacfebe9b936c0e76"
 contract_address = "0xDAED0AA4DA3433DFb7fe1b9cf4C1181b52bbbF68"
 abi = [
     {
@@ -61,11 +60,7 @@ abi = [
 
 
 def createNewElection(election_id, number_of_choices):
-    w3 = Web3(
-        Web3.HTTPProvider(
-            "https://sepolia.infura.io/v3/ed97a557d0a646669e1640f304c8a111"
-        )
-    )
+    w3 = Web3(Web3.HTTPProvider(url))
 
     my_contract = w3.eth.contract(address=contract_address, abi=abi)
     nonce = w3.eth.get_transaction_count(my_address)
@@ -91,11 +86,7 @@ def createNewElection(election_id, number_of_choices):
 
 
 def getElectionResult(election_id):
-    w3 = Web3(
-        Web3.HTTPProvider(
-            "https://sepolia.infura.io/v3/ed97a557d0a646669e1640f304c8a111"
-        )
-    )
+    w3 = Web3(Web3.HTTPProvider(url))
     my_contract = w3.eth.contract(address=contract_address, abi=abi)
     nonce = w3.eth.get_transaction_count(my_address)
     result = my_contract.functions.getElectionResult(election_id).call()
@@ -103,11 +94,7 @@ def getElectionResult(election_id):
 
 
 def vote(election_id, choice_id):
-    w3 = Web3(
-        Web3.HTTPProvider(
-            "https://sepolia.infura.io/v3/ed97a557d0a646669e1640f304c8a111"
-        )
-    )
+    w3 = Web3(Web3.HTTPProvider(url))
 
     my_contract = w3.eth.contract(address=contract_address, abi=abi)
     nonce = w3.eth.get_transaction_count(my_address)
@@ -129,11 +116,7 @@ def vote(election_id, choice_id):
 
 
 def hashVote(election_id, choice_id, hash):
-    w3 = Web3(
-        Web3.HTTPProvider(
-            "https://sepolia.infura.io/v3/ed97a557d0a646669e1640f304c8a111"
-        )
-    )
+    w3 = Web3(Web3.HTTPProvider(url))
 
     my_contract = w3.eth.contract(address=contract_address, abi=abi)
     nonce = w3.eth.get_transaction_count(my_address)
@@ -155,11 +138,7 @@ def hashVote(election_id, choice_id, hash):
 
 
 def verifyVote(election_id, hash):
-    w3 = Web3(
-        Web3.HTTPProvider(
-            "https://sepolia.infura.io/v3/ed97a557d0a646669e1640f304c8a111"
-        )
-    )
+    w3 = Web3(Web3.HTTPProvider(url))
     my_contract = w3.eth.contract(address=contract_address, abi=abi)
     nonce = w3.eth.get_transaction_count(my_address)
     result = my_contract.functions.verifyVote(

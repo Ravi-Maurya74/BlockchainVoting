@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinLengthValidator
 
 # Create your models here.
 
@@ -34,7 +35,12 @@ class Choice(models.Model):
 class Voter(models.Model):
     name = models.CharField(max_length=100)
     user_email = models.EmailField(unique=True)
-    password = models.CharField(max_length=30)
+    password = models.CharField(
+        max_length=30,
+        validators=[
+            MinLengthValidator(8, "This field must contain atleast 8 characters.")
+        ],
+    )
     admin = models.BooleanField(default=False)
     voted_in = models.ManyToManyField(
         Election,

@@ -5,6 +5,7 @@ urlpatterns = [
     # path("test/", views.test),
     path("createVoter/", views.NewVoter.as_view()),
     path("login/", views.login),
+    path("adminLogin/", views.adminLogin),
     path("createNewElection/", views.newElection),
     path("getElectionResult/", views.getElectionResult),
     path("castVote/", views.castVote),
@@ -16,4 +17,6 @@ urlpatterns = [
     path("getVoterElections/", views.getElectionforVoter),
     path("getClosedVoterElections/", views.getClosedElectionforVoter),
     path("getOngoingVOterElections/", views.getOngoingElectionforVoter),
+    path("closePoll/", views.closePoll),
+    path("getElection/", views.getElection),
 ]
