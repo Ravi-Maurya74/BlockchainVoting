@@ -1,5 +1,10 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.core.exceptions import ValidationError
+
+def custom_validate_email(value):
+    if value.split("@")[1]!="iiitl.ac.in":
+        raise ValidationError('This domain is not allowed')
 
 # Create your models here.
 
@@ -34,7 +39,9 @@ class Choice(models.Model):
 
 class Voter(models.Model):
     name = models.CharField(max_length=100)
-    user_email = models.EmailField(unique=True)
+    user_email = models.EmailField(unique=True,validators=[
+        custom_validate_email
+    ])
     password = models.CharField(
         max_length=30,
         validators=[

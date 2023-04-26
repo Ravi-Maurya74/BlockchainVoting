@@ -4,7 +4,7 @@ from hexbytes import HexBytes
 
 chain_id = 11155111
 my_address = "0xb7A2E79FD29106f03C17b6aD2E03e520ABEf6A20"
-contract_address = "0xDAED0AA4DA3433DFb7fe1b9cf4C1181b52bbbF68"
+contract_address = "0x6b8Fd34B51C3d0F2fB9a3D51613C598Df7D7Cca2"
 abi = [
     {
         "inputs": [
